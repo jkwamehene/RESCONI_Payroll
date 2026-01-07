@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RESCONI Payroll System</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-gradient-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-money-check-alt me-2"></i>
+                RESCONI Payroll
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" onclick="showSection('dashboard')">
+                            <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showSection('addEmployee')">
+                            <i class="fas fa-user-plus me-1"></i> Add Employee
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showSection('generatePayslip')">
+                            <i class="fas fa-file-invoice-dollar me-1"></i> Generate Payslip
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid py-4">
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="section active">
+            <h2 class="mb-4">
+                <i class="fas fa-chart-line me-2"></i>Dashboard Overview
+            </h2>
+
+            <!-- Statistics Cards -->
+            <div class="row mb-4">
+                <div class="col-md-4 mb-3">
+                    <div class="stat-card card-employees">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="totalEmployees">0</h3>
+                            <p>Total Employees</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="stat-card card-gross">
+                        <div class="stat-icon">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="totalGrossPay">GHS 0.00</h3>
+                            <p>Total Gross Pay</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="stat-card card-net">
+                        <div class="stat-icon">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="totalNetPay">GHS 0.00</h3>
+                            <p>Total Net Pay</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Employee Table -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-gradient-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-table me-2"></i>Employee List
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Position</th>
+                                    <th>Basic Salary</th>
+                                    <th>Allowances</th>
+                                    <th>Gross Pay</th>
+                                    <th>Net Pay</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="employeeTableBody">
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted">No employees added yet</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Employee Section -->
+        <div id="addEmployee" class="section">
+            <h2 class="mb-4">
+                <i class="fas fa-user-plus me-2"></i>Add Employee
+            </h2>
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form id="employeeForm">
+                        <div class="row">
+                            <!-- Personal Information -->
+                            <div class="col-md-6">
+                                <h5 class="mb-3 text-primary">Personal Information</h5>
+
+                                <div class="mb-3">
+                                    <label for="employeeId" class="form-label">Employee ID <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="employeeId" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="fullName" class="form-label">Full Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="fullName" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="position" class="form-label">Position</label>
+                                    <input type="text" class="form-control" id="position">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="ghanaCard" class="form-label">Ghana Card Number</label>
+                                    <input type="text" class="form-control" id="ghanaCard">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="bankAccount" class="form-label">Bank Account</label>
+                                    <input type="text" class="form-control" id="bankAccount">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="tin" class="form-label">TIN</label>
+                                    <input type="text" class="form-control" id="tin">
+                                </div>
+                            </div>
+
+                            <!-- Salary Information -->
+                            <div class="col-md-6">
+                                <h5 class="mb-3 text-primary">Salary Information</h5>
+
+                                <div class="mb-3">
+                                    <label for="basicSalary" class="form-label">Basic Salary (GHS) <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="basicSalary" step="0.01" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="housingAllowance" class="form-label">Housing Allowance (GHS)</label>
+                                    <input type="number" class="form-control" id="housingAllowance" step="0.01" value="0">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="transportAllowance" class="form-label">Transport Allowance (GHS)</label>
+                                    <input type="number" class="form-control" id="transportAllowance" step="0.01" value="0">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="otherAllowances" class="form-label">Other Allowances (GHS)</label>
+                                    <input type="number" class="form-control" id="otherAllowances" step="0.01" value="0">
+                                </div>
+
+                                <!-- Calculated Fields -->
+                                <div class="calculated-section mt-4 p-3 bg-light rounded">
+                                    <h6 class="text-success mb-3">Auto-Calculated Values</h6>
+
+                                    <div class="row mb-2">
+                                        <div class="col-6"><strong>SSNIT Tier 1 (5.5%):</strong></div>
+                                        <div class="col-6 text-end" id="calcSsnitT1">GHS 0.00</div>
+                                    </div>
+
+                                    <div class="row mb-2">
+                                        <div class="col-6"><strong>SSNIT Tier 2 (5%):</strong></div>
+                                        <div class="col-6 text-end" id="calcSsnitT2">GHS 0.00</div>
+                                    </div>
+
+                                    <div class="row mb-2">
+                                        <div class="col-6"><strong>NHIS (2.5%):</strong></div>
+                                        <div class="col-6 text-end" id="calcNhis">GHS 0.00</div>
+                                    </div>
+
+                                    <div class="row mb-2">
+                                        <div class="col-6"><strong>PAYE Tax:</strong></div>
+                                        <div class="col-6 text-end" id="calcPaye">GHS 0.00</div>
+                                    </div>
+
+                                    <hr>
+
+                                    <div class="row mb-2">
+                                        <div class="col-6"><strong>Gross Pay:</strong></div>
+                                        <div class="col-6 text-end text-primary fw-bold" id="calcGrossPay">GHS 0.00</div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-6"><strong>Net Pay:</strong></div>
+                                        <div class="col-6 text-end text-success fw-bold fs-5" id="calcNetPay">GHS 0.00</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Save Employee
+                            </button>
+                            <button type="reset" class="btn btn-secondary">
+                                <i class="fas fa-undo me-2"></i>Reset
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Generate Payslip Section -->
+        <div id="generatePayslip" class="section">
+            <h2 class="mb-4">
+                <i class="fas fa-file-invoice-dollar me-2"></i>Generate Payslip
+            </h2>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="row align-items-end">
+                        <div class="col-md-8">
+                            <label for="selectEmployee" class="form-label">Select Employee</label>
+                            <select class="form-select" id="selectEmployee">
+                                <option value="">-- Select an employee --</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mt-3 mt-md-0">
+                            <button class="btn btn-success w-100" onclick="printPayslip()">
+                                <i class="fas fa-print me-2"></i>Print Payslip
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payslip Preview -->
+            <div id="payslipContainer" style="display: none;">
+                <div class="text-end mb-3 no-print">
+                    <button class="btn btn-primary" onclick="downloadPDF()">
+                        <i class="fas fa-download me-2"></i>Download PDF
+                    </button>
+                </div>
+
+                <div id="payslipContent" class="payslip-wrapper">
+                    <!-- Payslip will be generated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- jsPDF and html2canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- Custom JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>
