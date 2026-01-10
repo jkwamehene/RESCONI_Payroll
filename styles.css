@@ -1,6 +1,6 @@
 :root {
     --primary-color: #0f172a;
-    --accent-color: #2563eb;
+    --accent-blue: #007bff; /* Exact blue from your reference */
     --border-ledger: #000000;
 }
 
@@ -20,98 +20,131 @@ body {
 .stat-card-pro .label { font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; }
 .stat-card-pro .value { font-size: 1.75rem; font-weight: 800; color: var(--primary-color); }
 
-/* --- OFFICIAL LEDGER OUTPUT --- */
-.ledger-output-wrapper {
+/* --- OFFICIAL BRANDED PAYSLIP OUTPUT --- */
+.payslip-wrapper {
     background: #fff;
-    padding: 40px;
+    padding: 50px;
     max-width: 850px;
-    margin: 0 auto;
-    border: 1px solid #ddd;
+    margin: 20px auto;
+    border: 1px solid #dee2e6;
     position: relative;
     box-shadow: 0 10px 25px rgba(0,0,0,0.05);
 }
 
+/* Brand Header Styling */
+.brand-title {
+    font-weight: 900;
+    font-size: 1.8rem;
+    color: #1e293b;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+}
+
+.brand-subtitle {
+    font-size: 0.85rem;
+    color: #64748b;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.pay-period-pill {
+    display: inline-block;
+    background-color: var(--accent-blue);
+    color: white;
+    padding: 6px 24px;
+    border-radius: 50px;
+    font-weight: 800;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+
+/* Personnel Grid - Matches the box look */
+.employee-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border: 1px solid #dee2e6;
+    margin: 25px 0;
+}
+
+.info-item {
+    padding: 12px 18px;
+    border: 0.5px solid #f1f3f5;
+    font-size: 0.85rem;
+    color: #334155;
+}
+
+/* Side-by-Side Table Layout */
+.ledger-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.ledger-table th {
+    background: #f8f9fa;
+    padding: 12px;
+    text-align: left;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    border-bottom: 2px solid #dee2e6;
+    color: #475569;
+}
+
+.ledger-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #f1f5f9;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.85rem;
+}
+
+/* Summary and Totals */
+.summary-row td {
+    font-weight: 800;
+    background: #f8fafc;
+    border-top: 2.5px solid #000;
+    padding: 15px 12px;
+}
+
+/* Net Payout Section - Focused Look */
+.net-section {
+    margin-top: 30px;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 20px;
+}
+
+.net-label {
+    font-weight: 800;
+    color: var(--accent-blue);
+    font-size: 0.8rem;
+    margin-bottom: 5px;
+}
+
+.net-amount {
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--accent-blue);
+}
+
+/* Watermark & Footer */
 .logo-watermark {
     position: absolute;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    width: 350px; height: 350px;
-    background: url('logo.png') no-repeat center; /* Optional */
+    width: 300px; height: 300px;
+    background: url('logo.png') no-repeat center;
     background-size: contain;
-    opacity: 0.04;
+    opacity: 0.03;
     z-index: 0;
+    pointer-events: none;
 }
 
-.header-info-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    border-top: 2px solid #000;
-}
-
-.info-box {
-    padding: 10px 15px;
-    border: 1px solid #000;
-    font-size: 0.8rem;
-    border-top: none;
-    background: #fff;
-}
-
-/* Side-by-Side Table Layout */
-.main-ledger-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: -1px;
-    z-index: 1;
-    position: relative;
-}
-
-.main-ledger-table th, .main-ledger-table td {
-    border: 1px solid #000;
-    padding: 8px 12px;
-    font-size: 0.85rem;
-    font-family: 'Roboto Mono', monospace;
-}
-
-.main-ledger-table th {
-    background-color: #f8fafc;
-    text-transform: uppercase;
-    font-weight: 800;
-}
-
-/* Vertical thick divider line */
-.main-ledger-table th:nth-child(2), 
-.main-ledger-table td:nth-child(2) {
-    border-right: 3px solid #000; 
-}
-
-.totals-row td {
-    background-color: #f1f5f9;
-    font-weight: 800;
-    border-top: 2px solid #000;
-}
-
-/* Footer Section */
-.ledger-footer {
-    margin-top: 20px;
-    border-top: 2px solid #000;
-}
-
-.footer-grid {
-    display: grid;
-    grid-template-columns: 1.5fr 1fr 1.2fr;
-}
-
-.footer-item {
-    padding: 12px;
-    border: 1px solid #000;
-    font-size: 0.8rem;
-    line-height: 1.4;
-}
-
-.footer-item.highlight {
-    background: #0f172a;
-    color: #fff;
+.payslip-footer {
     text-align: center;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-top: 50px;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 15px;
 }
 
 /* Section Switching */
@@ -123,131 +156,5 @@ body {
 @media print {
     .no-print { display: none !important; }
     body { background: white; padding: 0; }
-    .ledger-output-wrapper { border: none; padding: 0; margin: 0; box-shadow: none; width: 100%; }
-}:root {
-    --primary-color: #0f172a;
-    --accent-color: #2563eb;
-    --border-ledger: #000000;
-}
-
-body {
-    font-family: 'Inter', sans-serif;
-    background-color: #f1f5f9;
-}
-
-/* Dashboard Cards */
-.stat-card-pro {
-    background: #fff;
-    padding: 1.5rem;
-    border-radius: 12px;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-}
-.stat-card-pro .label { font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; }
-.stat-card-pro .value { font-size: 1.75rem; font-weight: 800; color: var(--primary-color); }
-
-/* --- OFFICIAL LEDGER OUTPUT --- */
-.ledger-output-wrapper {
-    background: #fff;
-    padding: 40px;
-    max-width: 850px;
-    margin: 0 auto;
-    border: 1px solid #ddd;
-    position: relative;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-}
-
-.logo-watermark {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    width: 350px; height: 350px;
-    background: url('logo.png') no-repeat center; /* Optional */
-    background-size: contain;
-    opacity: 0.04;
-    z-index: 0;
-}
-
-.header-info-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    border-top: 2px solid #000;
-}
-
-.info-box {
-    padding: 10px 15px;
-    border: 1px solid #000;
-    font-size: 0.8rem;
-    border-top: none;
-    background: #fff;
-}
-
-/* Side-by-Side Table Layout */
-.main-ledger-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: -1px;
-    z-index: 1;
-    position: relative;
-}
-
-.main-ledger-table th, .main-ledger-table td {
-    border: 1px solid #000;
-    padding: 8px 12px;
-    font-size: 0.85rem;
-    font-family: 'Roboto Mono', monospace;
-}
-
-.main-ledger-table th {
-    background-color: #f8fafc;
-    text-transform: uppercase;
-    font-weight: 800;
-}
-
-/* Vertical thick divider line */
-.main-ledger-table th:nth-child(2), 
-.main-ledger-table td:nth-child(2) {
-    border-right: 3px solid #000; 
-}
-
-.totals-row td {
-    background-color: #f1f5f9;
-    font-weight: 800;
-    border-top: 2px solid #000;
-}
-
-/* Footer Section */
-.ledger-footer {
-    margin-top: 20px;
-    border-top: 2px solid #000;
-}
-
-.footer-grid {
-    display: grid;
-    grid-template-columns: 1.5fr 1fr 1.2fr;
-}
-
-.footer-item {
-    padding: 12px;
-    border: 1px solid #000;
-    font-size: 0.8rem;
-    line-height: 1.4;
-}
-
-.footer-item.highlight {
-    background: #0f172a;
-    color: #fff;
-    text-align: center;
-}
-
-/* Section Switching */
-.section { display: none; }
-.section.active { display: block; animation: fadeIn 0.4s ease; }
-
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-@media print {
-    .no-print { display: none !important; }
-    body { background: white; padding: 0; }
-    .ledger-output-wrapper { border: none; padding: 0; margin: 0; box-shadow: none; width: 100%; }
+    .payslip-wrapper { border: none; padding: 0; margin: 0; box-shadow: none; width: 100%; }
 }
