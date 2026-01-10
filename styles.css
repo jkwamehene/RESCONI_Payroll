@@ -1,204 +1,178 @@
 :root {
-    --primary-color: #2563eb;
-    --secondary-color: #64748b;
-    --success-color: #10b981;
-    --danger-color: #ef4444;
-    --background-bg: #f8fafc;
+    --primary-color: #0f172a; /* Deeper navy for a more official feel */
+    --accent-color: #2563eb;
+    --success-color: #059669;
+    --background-bg: #f1f5f9;
     --card-bg: #ffffff;
-    --text-main: #1e293b;
-    --text-muted: #64748b;
-    --border-color: #e2e8f0;
+    --text-main: #0f172a;
+    --text-muted: #475569;
+    --border-ledger: #000000; /* Pure black for printed lines */
 }
 
 body {
-    font-family: 'Inter', -apple-system, sans-serif;
+    font-family: 'Inter', sans-serif;
     background-color: var(--background-bg);
     color: var(--text-main);
-    line-height: 1.6;
 }
 
-/* Navbar Professional Styling */
-.navbar {
-    background: #ffffff !important;
-    border-bottom: 1px solid var(--border-color);
-    padding: 1rem 2rem;
+/* --- Enterprise Dashboard Stats --- */
+.stat-card-pro {
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
-.navbar-brand {
-    font-weight: 800;
-    letter-spacing: -0.5px;
-    color: var(--primary-color) !important;
-}
-
-.nav-link {
-    font-weight: 500;
-    color: var(--secondary-color);
-    transition: all 0.2s ease;
-    padding: 0.5rem 1rem !important;
-    border-radius: 6px;
-}
-
-.nav-link:hover, .nav-link.active {
-    color: var(--primary-color) !important;
-    background-color: #eff6ff;
-}
-
-/* Dashboard Cards */
-.card {
-    border: none;
-    border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    transition: transform 0.2s ease;
-}
-
-.dashboard-card {
-    border-left: 4px solid var(--primary-color);
-}
-
-.card-title {
-    font-size: 0.875rem;
+.stat-card-pro .label {
+    font-size: 0.75rem;
     text-transform: uppercase;
-    letter-spacing: 0.025em;
-    color: var(--text-muted);
-    font-weight: 600;
-}
-
-.card-value {
-    font-size: 1.5rem;
     font-weight: 700;
-    color: var(--text-main);
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
 }
 
-/* Form Styling */
+.stat-card-pro .value {
+    font-size: 1.75rem;
+    font-weight: 800;
+    margin: 0.5rem 0;
+    color: var(--primary-color);
+}
+
+.stat-card-pro .trend {
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+/* --- Ledger Output (The "Ghana Style" Payslip) --- */
+.ledger-output-wrapper {
+    background: #fff;
+    padding: 40px;
+    max-width: 850px;
+    margin: 0 auto;
+    border: 1px solid #ddd;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+}
+
+.ledger-container {
+    position: relative;
+    color: #000;
+    /* This font makes numbers line up perfectly in columns */
+    font-family: 'Roboto Mono', monospace; 
+}
+
+/* Watermark Logic */
+.logo-watermark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 350px;
+    height: 350px;
+    background: url('your-logo.png') no-repeat center;
+    background-size: contain;
+    opacity: 0.04; /* Very faint */
+    z-index: 0;
+    pointer-events: none;
+}
+
+.header-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-top: 2px solid var(--border-ledger);
+}
+
+.info-box {
+    padding: 8px 12px;
+    border: 1px solid #000;
+    font-size: 0.8rem;
+    border-top: none;
+}
+
+/* Ledger Table Styling */
+.ledger-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: -1px; /* Prevents double borders with info-box */
+}
+
+.ledger-table th, .ledger-table td {
+    border: 1px solid #000;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+}
+
+.ledger-table th {
+    background-color: #f8fafc;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.totals-row td {
+    background-color: #f1f5f9;
+    font-weight: 800;
+}
+
+/* Footer Section */
+.ledger-footer {
+    margin-top: 20px;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    border-top: 2px solid #000;
+}
+
+.footer-item {
+    padding: 15px;
+    border: 1px solid #000;
+    font-size: 0.85rem;
+    text-align: center;
+}
+
+.footer-item.highlight {
+    background: #0f172a;
+    color: #fff;
+    border-color: #0f172a;
+}
+
+.footer-note {
+    text-align: center;
+    font-size: 0.7rem;
+    margin-top: 20px;
+    color: #64748b;
+}
+
+/* --- Section Toggling --- */
 .section {
     display: none;
-    animation: fadeIn 0.3s ease-in-out;
 }
 
 .section.active {
     display: block;
+    animation: fadeIn 0.4s ease-out;
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
+    from { opacity: 0; transform: translateY(5px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-label {
-    font-weight: 500;
-    font-size: 0.9rem;
-    margin-bottom: 0.5rem;
-    color: var(--text-main);
-}
+/* --- Utility Classes --- */
+.fw-800 { font-weight: 800; }
+.tracking-wider { letter-spacing: 0.1em; }
 
-.form-control {
-    border: 1px solid var(--border-color);
-    padding: 0.625rem;
-    border-radius: 8px;
-    font-size: 0.95rem;
-}
-
-.form-control:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-}
-
-/* Calculation Sidebar */
-#calculationPreview {
-    background-color: #f1f5f9;
-    border-radius: 12px;
-    padding: 1.5rem;
-    position: sticky;
-    top: 2rem;
-}
-
-.calc-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #e2e8f0;
-}
-
-.calc-total {
-    font-weight: 700;
-    color: var(--primary-color);
-    font-size: 1.2rem;
-    border-bottom: none;
-}
-
-/* Professional Table */
-.table {
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
-    border-collapse: separate;
-    border-spacing: 0;
-}
-
-.table thead th {
-    background-color: #f8fafc;
-    border-bottom: 2px solid var(--border-color);
-    text-transform: uppercase;
-    font-size: 0.75rem;
-    padding: 1rem;
-    color: var(--text-muted);
-}
-
-.table tbody td {
-    padding: 1rem;
-    vertical-align: middle;
-    border-bottom: 1px solid var(--border-color);
-}
-
-/* Professional Payslip Styling (Print-Ready) */
-#payslipContent {
-    background: #fff;
-    padding: 40px;
-    border: 1px solid #eee;
-    max-width: 800px;
-    margin: 20px auto;
-    color: #333;
-}
-
-.payslip-header h2 {
-    color: #1e293b;
-    font-weight: 800;
-    margin-bottom: 0;
-}
-
-.table-dark {
-    background-color: #1e293b !important;
-}
-
-.signature-line {
-    border-top: 1px solid #ccc;
-    width: 200px;
-    margin-top: 50px;
-    text-align: center;
-    font-size: 0.8rem;
-}
-
-/* Buttons */
-.btn {
-    font-weight: 500;
-    padding: 0.6rem 1.2rem;
-    border-radius: 8px;
-    transition: all 0.2s;
-}
-
-.btn-primary { background-color: var(--primary-color); border: none; }
-.btn-primary:hover { background-color: #1d4ed8; }
-
-/* Print optimization */
+/* --- Print Handling --- */
 @media print {
-    body * { visibility: hidden; }
-    #payslipContent, #payslipContent * { visibility: visible; }
-    #payslipContent {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
+    .no-print { display: none !important; }
+    body { background: white; }
+    .container-fluid { padding: 0 !important; }
+    .ledger-output-wrapper {
         border: none;
+        box-shadow: none;
         padding: 0;
+        margin: 0;
+        width: 100%;
     }
 }
