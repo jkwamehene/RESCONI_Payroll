@@ -32,11 +32,11 @@ function removeAllowance(i) {
     updateCalculations();
 }
 
-// Ghana Tax Engine
+// Ghana Tax Engine (Reflecting Current Statutory Rates)
 function getPayroll(basic, allowances) {
     const totalAllow = allowances.reduce((sum, a) => sum + a.amount, 0);
     const gross = basic + totalAllow;
-    const ssnit = basic * 0.055;
+    const ssnit = basic * 0.055; // [cite: 1, 3]
     const taxable = gross - ssnit;
     
     // PAYE 2025/2026 Tiers
@@ -62,7 +62,7 @@ function getPayroll(basic, allowances) {
         }
     }
 
-    const nhis = basic * 0.025;
+    const nhis = basic * 0.025; // [cite: 1, 3]
     const deductions = ssnit + tax + nhis;
     return { gross, ssnit, paye: tax, nhis, deductions, net: gross - deductions, taxable };
 }
@@ -109,18 +109,18 @@ function loadSelectedEmployee() {
     }
 }
 
+// FORMATTED TO MATCH NEW DESIGN
 function generatePayslip(emp) {
     const date = new Date().toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }).toUpperCase();
     
-    // Preparing Table Rows
     const earnings = [
         ['Basic Salary', emp.basicSalary],
         ...emp.allowances.map(a => [a.type, a.amount])
     ];
     const deductions = [
-        ['S.S.N.I.T (5.5%)', emp.ssnit],
+        ['SSNIT Employee (5.5%)', emp.ssnit],
         ['Income Tax (PAYE)', emp.paye],
-        ['NHIS Employee', emp.nhis]
+        ['NHIS (2.5%)', emp.nhis]
     ];
 
     const maxRows = Math.max(earnings.length, deductions.length);
@@ -140,49 +140,46 @@ function generatePayslip(emp) {
     }
 
     document.getElementById('payslipContent').innerHTML = `
-        <div class="logo-watermark"></div>
-        <div class="text-center mb-4">
-            <h4 class="fw-800 mb-0">RESCONI PAYROLL SERVICES</h4>
-            <p class="small text-muted mb-0">PAY ADVICE FOR THE MONTH OF ${date}</p>
-        </div>
-        
-        <div class="header-info-grid">
-            <div class="info-box"><strong>NAME:</strong> ${emp.fullName.toUpperCase()}</div>
-            <div class="info-box"><strong>STAFF ID:</strong> ${emp.employeeId}</div>
-            <div class="info-box"><strong>NIA NO:</strong> ${emp.ghanaCard || 'N/A'}</div>
-            <div class="info-box"><strong>POSITION:</strong> ${emp.position || 'STAFF'}</div>
-        </div>
+        <div class="payslip-wrapper">
+            <div class="text-center mb-4">
+                <h2 class="brand-title">RESCONI PAYROLL SERVICES</h2>
+                <p class="brand-subtitle">PRIVATE PERSONNEL EMOLUMENT STATEMENT</p>
+                <div class="pay-period-pill">PAY PERIOD: ${date} 2026</div>
+            </div>
+            
+            <div class="employee-info-grid">
+                <div class="info-item"><strong>NAME:</strong> ${emp.fullName.toUpperCase()}</div>
+                <div class="info-item"><strong>STAFF ID:</strong> ${emp.employeeId}</div>
+                <div class="info-item"><strong>NIA NO:</strong> ${emp.ghanaCard || 'N/A'}</div>
+                <div class="info-item"><strong>POSITION:</strong> ${emp.position || 'STAFF'}</div>
+            </div>
 
-        <table class="main-ledger-table">
-            <thead>
-                <tr>
-                    <th style="width: 35%">EARNINGS</th><th class="text-end" style="width: 15%">AMOUNT</th>
-                    <th style="width: 35%">DEDUCTIONS</th><th class="text-end" style="width: 15%">AMOUNT</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${tableBody}
-                <tr class="totals-row">
-                    <td>GROSS EARNINGS</td><td class="text-end">${emp.gross.toFixed(2)}</td>
-                    <td>TOTAL DEDUCTIONS</td><td class="text-end">${emp.deductions.toFixed(2)}</td>
-                </tr>
-            </tbody>
-        </table>
+            <table class="ledger-table">
+                <thead>
+                    <tr>
+                        <th colspan="2">Earnings & Allowances</th>
+                        <th colspan="2">Statutory Deductions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${tableBody}
+                </tbody>
+                <tfoot>
+                    <tr class="summary-row">
+                        <td>GROSS PAY</td><td class="text-end">GHS ${emp.gross.toFixed(2)}</td>
+                        <td>TOTAL DEDUCTIONS</td><td class="text-end">GHS ${emp.deductions.toFixed(2)}</td>
+                    </tr>
+                </tfoot>
+            </table>
 
-        <div class="ledger-footer">
-            <div class="footer-grid">
-                <div class="footer-item">
-                    <strong>PAYMENT MODE:</strong><br>
-                    <span class="small">${emp.bankName || 'BANK TRANSFER'}</span><br>
-                    <span class="extra-small text-muted">${emp.bankBranch || ''}</span>
-                </div>
-                <div class="footer-item">
-                    <strong>DEDUCTIONS:</strong><br>GHS ${emp.deductions.toFixed(2)}
-                </div>
-                <div class="footer-item highlight">
-                    <strong class="small">NET SALARY</strong><br>
-                    <span class="h5 fw-bold">GHS ${emp.net.toFixed(2)}</span>
-                </div>
+            <div class="net-section">
+                <div class="net-label">NET PAYOUT</div>
+                <div class="net-amount">GHS ${emp.net.toFixed(2)}</div>
+            </div>
+
+            <div class="payslip-footer">
+                <p>This payslip is electronically generated. No signature is required.</p>
+                <p>Date: ${new Date().toLocaleDateString('en-GB')}</p>
             </div>
         </div>
     `;
@@ -192,8 +189,9 @@ function generatePayslip(emp) {
 window.onload = function() {
     const list = document.getElementById('employeeTableBody');
     const select = document.getElementById('selectEmployee');
-    if(employees.length > 0) list.innerHTML = "";
-    
+    if(!list || !select) return;
+
+    list.innerHTML = "";
     let totalG = 0, totalN = 0;
 
     employees.forEach(emp => {
