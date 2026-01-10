@@ -1,12 +1,12 @@
 :root {
-    --primary-color: #0f172a; /* Deeper navy for a more official feel */
+    --primary-color: #0f172a; 
     --accent-color: #2563eb;
     --success-color: #059669;
-    --background-bg: #f1f5f9;
+    --background-bg: #f8fafc;
     --card-bg: #ffffff;
     --text-main: #0f172a;
-    --text-muted: #475569;
-    --border-ledger: #000000; /* Pure black for printed lines */
+    --text-muted: #64748b;
+    --border-ledger: #1e293b; /* Sharp navy-black for professional lines */
 }
 
 body {
@@ -19,160 +19,160 @@ body {
 .stat-card-pro {
     background: var(--card-bg);
     padding: 1.5rem;
-    border-radius: 8px;
+    border-radius: 12px;
     border: 1px solid #e2e8f0;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    transition: transform 0.2s;
+}
+
+.stat-card-pro:hover {
+    transform: translateY(-3px);
 }
 
 .stat-card-pro .label {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     text-transform: uppercase;
     font-weight: 700;
     color: var(--text-muted);
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
 }
 
 .stat-card-pro .value {
-    font-size: 1.75rem;
+    font-size: 1.8rem;
     font-weight: 800;
-    margin: 0.5rem 0;
+    margin: 0.4rem 0;
     color: var(--primary-color);
 }
 
-.stat-card-pro .trend {
-    font-size: 0.8rem;
-    font-weight: 500;
+/* --- Flexible Allowance List UI --- */
+#allowanceList .extra-small {
+    font-size: 0.65rem;
 }
 
-/* --- Ledger Output (The "Ghana Style" Payslip) --- */
-.ledger-output-wrapper {
+/* --- Professional Split Ledger Layout --- */
+.ledger-wrapper {
     background: #fff;
     padding: 40px;
-    max-width: 850px;
+    max-width: 900px;
     margin: 0 auto;
-    border: 1px solid #ddd;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-}
-
-.ledger-container {
+    border: 1px solid #cbd5e1;
     position: relative;
-    color: #000;
-    /* This font makes numbers line up perfectly in columns */
-    font-family: 'Roboto Mono', monospace; 
+    overflow: hidden;
 }
 
-/* Watermark Logic */
+/* Vertical Ledger Grid */
+.ledger-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr; /* Earnings side slightly wider */
+    border: 2px solid var(--border-ledger);
+    background-color: #fff;
+}
+
+.ledger-column {
+    display: flex;
+    flex-direction: column;
+}
+
+/* The vertical divider line */
+.ledger-column:first-child {
+    border-right: 2px solid var(--border-ledger);
+}
+
+.ledger-header-cell {
+    background: #f1f5f9;
+    padding: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    border-bottom: 2px solid var(--border-ledger);
+    text-align: center;
+    letter-spacing: 0.05em;
+}
+
+.ledger-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 15px;
+    font-size: 0.85rem;
+    border-bottom: 1px solid #e2e8f0;
+    font-family: 'Roboto Mono', monospace; /* Keeps numbers aligned */
+}
+
+.ledger-row span:last-child {
+    font-weight: 600;
+}
+
+/* Total Rows within Columns */
+.total-row {
+    background: #f8fafc;
+    font-weight: 800 !important;
+    border-top: 2px solid var(--border-ledger);
+    border-bottom: none;
+    margin-top: auto; /* Pushes totals to the bottom of the column */
+}
+
+/* --- Summary Bar --- */
+.summary-bar {
+    display: flex;
+    justify-content: space-around;
+    background: var(--primary-color);
+    color: white;
+    margin-top: 20px;
+    padding: 20px;
+    text-align: center;
+}
+
+.summary-item strong {
+    font-size: 1.4rem;
+    display: block;
+}
+
+.summary-item small {
+    text-transform: uppercase;
+    font-size: 0.65rem;
+    opacity: 0.8;
+    letter-spacing: 1px;
+}
+
+/* --- Branding & Watermark --- */
 .logo-watermark {
     position: absolute;
-    top: 50%;
+    top: 55%;
     left: 50%;
-    transform: translate(-50%, -50%);
-    width: 350px;
-    height: 350px;
-    background: url('your-logo.png') no-repeat center;
-    background-size: contain;
-    opacity: 0.04; /* Very faint */
-    z-index: 0;
-    pointer-events: none;
-}
-
-.header-info-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    border-top: 2px solid var(--border-ledger);
-}
-
-.info-box {
-    padding: 8px 12px;
-    border: 1px solid #000;
-    font-size: 0.8rem;
-    border-top: none;
-}
-
-/* Ledger Table Styling */
-.ledger-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: -1px; /* Prevents double borders with info-box */
-}
-
-.ledger-table th, .ledger-table td {
-    border: 1px solid #000;
-    padding: 8px 12px;
-    font-size: 0.85rem;
-}
-
-.ledger-table th {
-    background-color: #f8fafc;
+    transform: translate(-50%, -50%) rotate(-30deg);
+    font-size: 5rem;
+    font-weight: 900;
+    color: rgba(0,0,0,0.03);
     text-transform: uppercase;
-    font-weight: 700;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 0;
 }
 
-.totals-row td {
-    background-color: #f1f5f9;
-    font-weight: 800;
-}
+/* --- Utilities --- */
+.section { display: none; }
+.section.active { display: block; animation: slideUp 0.3s ease-out; }
 
-/* Footer Section */
-.ledger-footer {
-    margin-top: 20px;
-}
-
-.footer-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    border-top: 2px solid #000;
-}
-
-.footer-item {
-    padding: 15px;
-    border: 1px solid #000;
-    font-size: 0.85rem;
-    text-align: center;
-}
-
-.footer-item.highlight {
-    background: #0f172a;
-    color: #fff;
-    border-color: #0f172a;
-}
-
-.footer-note {
-    text-align: center;
-    font-size: 0.7rem;
-    margin-top: 20px;
-    color: #64748b;
-}
-
-/* --- Section Toggling --- */
-.section {
-    display: none;
-}
-
-.section.active {
-    display: block;
-    animation: fadeIn 0.4s ease-out;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(5px); }
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* --- Utility Classes --- */
+.extra-small { font-size: 0.7rem; }
 .fw-800 { font-weight: 800; }
-.tracking-wider { letter-spacing: 0.1em; }
 
-/* --- Print Handling --- */
+/* --- Print Settings --- */
 @media print {
     .no-print { display: none !important; }
-    body { background: white; }
-    .container-fluid { padding: 0 !important; }
-    .ledger-output-wrapper {
+    body { background: white; padding: 0; }
+    .ledger-wrapper {
         border: none;
-        box-shadow: none;
-        padding: 0;
-        margin: 0;
         width: 100%;
+        max-width: 100%;
+        padding: 0;
+    }
+    .summary-bar {
+        background: #000 !important; /* Force black for printers */
+        -webkit-print-color-adjust: exact;
     }
 }
