@@ -9,8 +9,8 @@ document.addEventListener('DOMContentLoaded', function() {
     updateEmployeeTable();
     populateEmployeeSelect();
 
-    // Add event listeners for live calculation
-    const salaryInputs = ['basicSalary', 'housingAllowance', 'transportAllowance', 'otherAllowances'];
+    // Add event listeners for live calculation in the "Add Employee" form
+    const salaryInputs = ['basicSalary', 'housingAllowance', 'transportAllowance'];
     salaryInputs.forEach(id => {
         const element = document.getElementById(id);
         if (element) {
@@ -23,10 +23,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (employeeForm) {
         employeeForm.addEventListener('submit', handleFormSubmit);
         
-        // Reset form handler
         employeeForm.addEventListener('reset', function() {
             currentEditId = null;
-            setTimeout(updateCalculations, 0); // Delay to allow values to clear
+            setTimeout(updateCalculations, 0); 
         });
     }
 
@@ -37,20 +36,18 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Section Navigation
+// --- Section Navigation ---
 function showSection(sectionId) {
-    // Hide all sections
     document.querySelectorAll('.section').forEach(section => {
         section.classList.remove('active');
     });
 
-    // Show selected section
     const targetSection = document.getElementById(sectionId);
     if (targetSection) {
         targetSection.classList.add('active');
     }
 
-    // Update nav links
+    // Update nav links styling
     document.querySelectorAll('.nav-link').forEach(link => {
         link.classList.remove('active');
         if (link.getAttribute('onclick')?.includes(sectionId)) {
@@ -59,7 +56,7 @@ function showSection(sectionId) {
     });
 }
 
-// Local Storage Functions
+// --- Data Management ---
 function loadEmployees() {
     const stored = localStorage.getItem('resconi_employees');
     if (stored) {
@@ -71,38 +68,28 @@ function saveEmployees() {
     localStorage.setItem('resconi_employees', JSON.stringify(employees));
 }
 
-// Payroll Calculation Functions
-function calculatePayroll(basicSalary, housingAllowance, transportAllowance, otherAllowances) {
+// --- Payroll Engine (Ghana Specific) ---
+function calculatePayroll(basicSalary, housingAllowance, transportAllowance) {
     const basic = parseFloat(basicSalary) || 0;
     const housing = parseFloat(housingAllowance) || 0;
     const transport = parseFloat(transportAllowance) || 0;
-    const other = parseFloat(otherAllowances) || 0;
 
     // Gross Pay
-    const grossPay = basic + housing + transport + other;
+    const grossPay = basic + housing + transport;
 
-    // Employee Deductions (Ghana Specific)
-    const ssnitT1Employee = basic * 0.055; // 5.5% (to Tier 1)
-    const ssnitT2Employee = basic * 0.05;  // 5% (to Tier 2)
-    const nhisEmployee = basic * 0.025;    // 2.5%
+    // Employee Deductions
+    const ssnitT1Employee = basic * 0.055; // 5.5% Tier 1
+    const ssnitT2Employee = basic * 0.05;  // 5% Tier 2
+    const nhisEmployee = basic * 0.025;    // 2.5% NHIS
 
-    // Taxable Income = Gross Pay - SSNIT Employee Contribution
+    // Taxable Income = Gross - Employee SSNIT
     const taxableIncome = grossPay - (ssnitT1Employee + ssnitT2Employee);
 
-    // PAYE Calculation
+    // PAYE Calculation (Ghana 2024/2025 Brackets)
     const paye = calculatePAYE(taxableIncome);
 
-    // Total Deductions
     const totalDeductions = ssnitT1Employee + ssnitT2Employee + nhisEmployee + paye;
-
-    // Net Pay
     const netPay = grossPay - totalDeductions;
-
-    // Employer Contributions
-    const ssnitT1Employer = basic * 0.135; // 13.5%
-    const ssnitT2Employer = basic * 0.05;  // 5%
-    const nhisEmployer = basic * 0.025;    // 2.5%
-    const totalEmployerCost = grossPay + ssnitT1Employer + ssnitT2Employer + nhisEmployer;
 
     return {
         grossPay,
@@ -111,19 +98,12 @@ function calculatePayroll(basicSalary, housingAllowance, transportAllowance, oth
         nhisEmployee,
         paye,
         totalDeductions,
-        netPay,
-        ssnitT1Employer,
-        ssnitT2Employer,
-        nhisEmployer,
-        totalEmployerCost
+        netPay
     };
 }
 
-function calculatePAYE(taxableIncome) {
-    // Current Ghana Graduated Tax Brackets (Monthly)
-    const income = taxableIncome;
+function calculatePAYE(income) {
     let tax = 0;
-
     if (income <= 402) {
         tax = 0;
     } else if (income <= 512) {
@@ -139,24 +119,20 @@ function calculatePAYE(taxableIncome) {
     } else {
         tax = 13633 + (income - 50000) * 0.35;
     }
-
     return tax;
 }
 
-// Live Calculation Update
+// --- UI Logic & Updates ---
 function updateCalculations() {
-    const basicSalary = document.getElementById('basicSalary')?.value || 0;
-    const housingAllowance = document.getElementById('housingAllowance')?.value || 0;
-    const transportAllowance = document.getElementById('transportAllowance')?.value || 0;
-    const otherAllowances = document.getElementById('otherAllowances')?.value || 0;
+    const basic = document.getElementById('basicSalary')?.value || 0;
+    const housing = document.getElementById('housingAllowance')?.value || 0;
+    const transport = document.getElementById('transportAllowance')?.value || 0;
 
-    const payroll = calculatePayroll(basicSalary, housingAllowance, transportAllowance, otherAllowances);
+    const payroll = calculatePayroll(basic, housing, transport);
 
-    // Update display fields
+    // Update the Sidebar Preview
     const fields = {
         'calcSsnitT1': payroll.ssnitT1Employee,
-        'calcSsnitT2': payroll.ssnitT2Employee,
-        'calcNhis': payroll.nhisEmployee,
         'calcPaye': payroll.paye,
         'calcGrossPay': payroll.grossPay,
         'calcNetPay': payroll.netPay
@@ -164,47 +140,38 @@ function updateCalculations() {
 
     for (const [id, value] of Object.entries(fields)) {
         const el = document.getElementById(id);
-        if (el) el.textContent = formatCurrency(value);
+        if (el) el.textContent = "GHS " + formatCurrency(value);
     }
 }
 
-// Form Submit Handler
 function handleFormSubmit(e) {
     e.preventDefault();
 
-    const employeeId = document.getElementById('employeeId').value.trim();
-    const fullName = document.getElementById('fullName').value.trim();
-    
-    const basicSalary = parseFloat(document.getElementById('basicSalary').value) || 0;
-    const housingAllowance = parseFloat(document.getElementById('housingAllowance').value) || 0;
-    const transportAllowance = parseFloat(document.getElementById('transportAllowance').value) || 0;
-    const otherAllowances = parseFloat(document.getElementById('otherAllowances').value) || 0;
-
-    const payroll = calculatePayroll(basicSalary, housingAllowance, transportAllowance, otherAllowances);
+    const empId = document.getElementById('employeeId').value.trim();
+    const payroll = calculatePayroll(
+        document.getElementById('basicSalary').value,
+        document.getElementById('housingAllowance').value,
+        document.getElementById('transportAllowance').value
+    );
 
     const employeeData = {
-        employeeId,
-        fullName,
+        employeeId: empId,
+        fullName: document.getElementById('fullName').value.trim(),
         position: document.getElementById('position').value.trim(),
         ghanaCard: document.getElementById('ghanaCard').value.trim(),
-        bankAccount: document.getElementById('bankAccount').value.trim(),
         tin: document.getElementById('tin').value.trim(),
-        basicSalary,
-        housingAllowance,
-        transportAllowance,
-        otherAllowances,
+        basicSalary: parseFloat(document.getElementById('basicSalary').value) || 0,
+        housingAllowance: parseFloat(document.getElementById('housingAllowance').value) || 0,
+        transportAllowance: parseFloat(document.getElementById('transportAllowance').value) || 0,
         ...payroll
     };
 
-    const existingIndex = employees.findIndex(emp => emp.employeeId === employeeId);
+    const existingIndex = employees.findIndex(emp => emp.employeeId === empId);
 
-    if (currentEditId || existingIndex !== -1) {
-        const indexToUpdate = currentEditId ? employees.findIndex(emp => emp.employeeId === currentEditId) : existingIndex;
-        employees[indexToUpdate] = employeeData;
-        alert("Employee updated successfully!");
+    if (existingIndex !== -1) {
+        employees[existingIndex] = employeeData;
     } else {
         employees.push(employeeData);
-        alert("Employee added successfully!");
     }
 
     saveEmployees();
@@ -213,19 +180,17 @@ function handleFormSubmit(e) {
     populateEmployeeSelect();
     
     document.getElementById('employeeForm').reset();
-    currentEditId = null;
     showSection('dashboard');
 }
 
-// Dashboard and UI Updates
 function updateDashboard() {
     const totalEmployees = employees.length;
     const totalGross = employees.reduce((sum, emp) => sum + emp.grossPay, 0);
     const totalNet = employees.reduce((sum, emp) => sum + emp.netPay, 0);
 
     if(document.getElementById('totalEmployees')) document.getElementById('totalEmployees').textContent = totalEmployees;
-    if(document.getElementById('totalGrossPay')) document.getElementById('totalGrossPay').textContent = formatCurrency(totalGross);
-    if(document.getElementById('totalNetPay')) document.getElementById('totalNetPay').textContent = formatCurrency(totalNet);
+    if(document.getElementById('totalGrossPay')) document.getElementById('totalGrossPay').textContent = "GHS " + formatCurrency(totalGross);
+    if(document.getElementById('totalNetPay')) document.getElementById('totalNetPay').textContent = "GHS " + formatCurrency(totalNet);
 }
 
 function updateEmployeeTable() {
@@ -233,22 +198,20 @@ function updateEmployeeTable() {
     if (!tbody) return;
 
     if (employees.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No employees added yet</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-5 text-muted">No records found</td></tr>';
         return;
     }
 
     tbody.innerHTML = employees.map(emp => `
         <tr>
-            <td>${emp.employeeId}</td>
+            <td class="ps-4 fw-bold">${emp.employeeId}</td>
             <td>${emp.fullName}</td>
-            <td>${emp.position || '-'}</td>
-            <td>${formatCurrency(emp.basicSalary)}</td>
-            <td>${formatCurrency(emp.housingAllowance + emp.transportAllowance + emp.otherAllowances)}</td>
+            <td><span class="badge bg-light text-dark border">${emp.position || 'Staff'}</span></td>
             <td>${formatCurrency(emp.grossPay)}</td>
-            <td>${formatCurrency(emp.netPay)}</td>
-            <td>
-                <button class="btn btn-sm btn-primary me-1" onclick="editEmployee('${emp.employeeId}')">Edit</button>
-                <button class="btn btn-sm btn-danger" onclick="deleteEmployee('${emp.employeeId}')">Delete</button>
+            <td class="fw-bold text-primary">${formatCurrency(emp.netPay)}</td>
+            <td class="text-end pe-4">
+                <button class="btn btn-sm btn-link text-decoration-none" onclick="editEmployee('${emp.employeeId}')">Edit</button>
+                <button class="btn btn-sm btn-link text-danger text-decoration-none" onclick="deleteEmployee('${emp.employeeId}')">Delete</button>
             </td>
         </tr>
     `).join('');
@@ -258,25 +221,21 @@ function editEmployee(id) {
     const emp = employees.find(e => e.employeeId === id);
     if (!emp) return;
 
-    currentEditId = id;
     showSection('addEmployee');
-
     document.getElementById('employeeId').value = emp.employeeId;
     document.getElementById('fullName').value = emp.fullName;
     document.getElementById('position').value = emp.position;
     document.getElementById('ghanaCard').value = emp.ghanaCard;
-    document.getElementById('bankAccount').value = emp.bankAccount;
     document.getElementById('tin').value = emp.tin;
     document.getElementById('basicSalary').value = emp.basicSalary;
     document.getElementById('housingAllowance').value = emp.housingAllowance;
     document.getElementById('transportAllowance').value = emp.transportAllowance;
-    document.getElementById('otherAllowances').value = emp.otherAllowances;
 
     updateCalculations();
 }
 
 function deleteEmployee(id) {
-    if (confirm("Are you sure you want to delete this employee?")) {
+    if (confirm("Confirm deletion of staff record?")) {
         employees = employees.filter(emp => emp.employeeId !== id);
         saveEmployees();
         updateDashboard();
@@ -289,8 +248,8 @@ function populateEmployeeSelect() {
     const select = document.getElementById('selectEmployee');
     if (!select) return;
 
-    select.innerHTML = '<option value="">-- Select Employee --</option>' + 
-        employees.map(emp => `<option value="${emp.employeeId}">${emp.fullName}</option>`).join('');
+    select.innerHTML = '<option value="">-- Search Registry --</option>' + 
+        employees.map(emp => `<option value="${emp.employeeId}">${emp.employeeId} - ${emp.fullName}</option>`).join('');
 }
 
 function handleEmployeeSelect(e) {
@@ -309,75 +268,87 @@ function handleEmployeeSelect(e) {
     }
 }
 
-// Generate Payslip HTML Content
+// --- Professional Ledger Generator ---
 function generatePayslip(employee) {
     const now = new Date();
-    const monthYear = now.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
-    
+    const monthYear = now.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }).toUpperCase();
+    const dateStr = now.toLocaleDateString('en-GB');
+
     const payslipHTML = `
-        <div class="payslip-header text-center mb-4">
-            <h2>RESCONI</h2>
-            <p>Professional Payroll Solutions | Accra, Ghana</p>
-            <hr>
-            <h4>PAYSLIP: ${monthYear.toUpperCase()}</h4>
-        </div>
-        <div class="row">
-            <div class="col-6">
-                <strong>Name:</strong> ${employee.fullName}<br>
-                <strong>ID:</strong> ${employee.employeeId}<br>
-                <strong>Position:</strong> ${employee.position}
+        <div class="ledger-container">
+            <div class="logo-watermark"></div>
+            <div class="header-top text-center mb-4">
+                <h3 class="fw-bold mb-0">RESCONI PAYROLL SERVICES</h3>
+                <p class="small mb-0 text-muted">OFFICIAL PERSONNEL REMUNERATION STATEMENT</p>
+                <div class="badge bg-dark mt-2 px-4">MONTH: ${monthYear}</div>
             </div>
-            <div class="col-6 text-end">
-                <strong>TIN:</strong> ${employee.tin || 'N/A'}<br>
-                <strong>SSNIT:</strong> ${employee.ghanaCard || 'N/A'}<br>
-                <strong>Bank:</strong> ${employee.bankAccount || 'N/A'}
+
+            <div class="header-info-grid mb-4">
+                <div class="info-box"><strong>STAFF NAME:</strong> ${employee.fullName.toUpperCase()}</div>
+                <div class="info-box"><strong>STAFF ID:</strong> ${employee.employeeId}</div>
+                <div class="info-box"><strong>NIA NUMBER:</strong> ${employee.ghanaCard || 'N/A'}</div>
+                <div class="info-box"><strong>TIN:</strong> ${employee.tin || 'N/A'}</div>
+            </div>
+
+            <table class="ledger-table mb-4">
+                <thead>
+                    <tr>
+                        <th style="width: 50%">DESCRIPTION</th>
+                        <th class="text-end" style="width: 25%">EARNINGS (GHS)</th>
+                        <th class="text-end" style="width: 25%">DEDUCTIONS (GHS)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Basic Salary</td><td class="text-end">${formatCurrency(employee.basicSalary)}</td><td></td></tr>
+                    <tr><td>Housing Allowance</td><td class="text-end">${formatCurrency(employee.housingAllowance)}</td><td></td></tr>
+                    <tr><td>Transport Allowance</td><td class="text-end">${formatCurrency(employee.transportAllowance)}</td><td></td></tr>
+                    
+                    <tr><td>Social Security (SSNIT 5.5%)</td><td></td><td class="text-end">${formatCurrency(employee.ssnitT1Employee)}</td></tr>
+                    <tr><td>Income Tax (PAYE)</td><td></td><td class="text-end">${formatCurrency(employee.paye)}</td></tr>
+                    <tr><td>NHIS (Employee 2.5%)</td><td></td><td class="text-end">${formatCurrency(employee.nhisEmployee)}</td></tr>
+                    
+                    <tr class="totals-row">
+                        <td>MONTHLY TOTALS</td>
+                        <td class="text-end">${formatCurrency(employee.grossPay)}</td>
+                        <td class="text-end">${formatCurrency(employee.totalDeductions)}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="ledger-footer">
+                <div class="footer-grid">
+                    <div class="footer-item"><strong>GROSS PAY:</strong><br>GHS ${formatCurrency(employee.grossPay)}</div>
+                    <div class="footer-item"><strong>DEDUCTIONS:</strong><br>GHS ${formatCurrency(employee.totalDeductions)}</div>
+                    <div class="footer-item highlight"><strong>NET SALARY:</strong><br>GHS ${formatCurrency(employee.netPay)}</div>
+                </div>
+                <div class="footer-note">
+                    <p class="mb-0">Electronically generated on ${dateStr}.</p>
+                    <p class="small text-muted">This document serves as a valid proof of income for financial institutions.</p>
+                </div>
             </div>
         </div>
-        <table class="table mt-4">
-            <thead class="table-light">
-                <tr><th>Description</th><th class="text-end">Amount (GHS)</th></tr>
-            </thead>
-            <tbody>
-                <tr><td>Basic Salary</td><td class="text-end">${formatCurrency(employee.basicSalary)}</td></tr>
-                <tr><td>Allowances</td><td class="text-end">${formatCurrency(employee.housingAllowance + employee.transportAllowance + employee.otherAllowances)}</td></tr>
-                <tr class="fw-bold"><td>Gross Pay</td><td class="text-end">${formatCurrency(employee.grossPay)}</td></tr>
-                <tr><td>SSNIT (5.5%)</td><td class="text-end">-${formatCurrency(employee.ssnitT1Employee)}</td></tr>
-                <tr><td>PAYE Tax</td><td class="text-end">-${formatCurrency(employee.paye)}</td></tr>
-                <tr><td>NHIS (2.5%)</td><td class="text-end">-${formatCurrency(employee.nhisEmployee)}</td></tr>
-                <tr class="table-dark"><td>NET PAY</td><td class="text-end">${formatCurrency(employee.netPay)}</td></tr>
-            </tbody>
-        </table>
     `;
     
     const content = document.getElementById('payslipContent');
     if(content) content.innerHTML = payslipHTML;
 }
 
-// PDF Export
+// --- Exports ---
 async function downloadPDF() {
     const element = document.getElementById('payslipContent');
     const { jsPDF } = window.jspdf;
     
-    const btn = event.currentTarget;
-    btn.disabled = true;
-    btn.innerHTML = "Generating...";
-
     try {
-        const canvas = await html2canvas(element, { scale: 2 });
+        const canvas = await html2canvas(element, { scale: 3 }); // High resolution
         const imgData = canvas.toDataURL('image/png');
         const pdf = new jsPDF('p', 'mm', 'a4');
-        const imgProps = pdf.getImageProperties(imgData);
         const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
         
         pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-        pdf.save(`Payslip_${currentEditId || 'Employee'}.pdf`);
+        pdf.save(`RESCONI_PAYSLIP_${employees.find(e => e.employeeId === document.getElementById('selectEmployee').value).fullName}.pdf`);
     } catch (err) {
-        console.error(err);
-        alert("Failed to generate PDF.");
-    } finally {
-        btn.disabled = false;
-        btn.innerHTML = "Download PDF";
+        alert("PDF Generation Error");
     }
 }
 
@@ -385,10 +356,6 @@ function printPayslip() {
     window.print();
 }
 
-// Utility Function
 function formatCurrency(amount) {
-    return parseFloat(amount).toLocaleString('en-GH', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    });
+    return parseFloat(amount).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
 }
