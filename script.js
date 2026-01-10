@@ -12,20 +12,29 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add event listeners for live calculation
     const salaryInputs = ['basicSalary', 'housingAllowance', 'transportAllowance', 'otherAllowances'];
     salaryInputs.forEach(id => {
-        document.getElementById(id).addEventListener('input', updateCalculations);
+        const element = document.getElementById(id);
+        if (element) {
+            element.addEventListener('input', updateCalculations);
+        }
     });
 
     // Form submit handler
-    document.getElementById('employeeForm').addEventListener('submit', handleFormSubmit);
+    const employeeForm = document.getElementById('employeeForm');
+    if (employeeForm) {
+        employeeForm.addEventListener('submit', handleFormSubmit);
+        
+        // Reset form handler
+        employeeForm.addEventListener('reset', function() {
+            currentEditId = null;
+            setTimeout(updateCalculations, 0); // Delay to allow values to clear
+        });
+    }
 
-    // Employee select handler
-    document.getElementById('selectEmployee').addEventListener('change', handleEmployeeSelect);
-
-    // Reset form handler
-    document.getElementById('employeeForm').addEventListener('reset', function() {
-        currentEditId = null;
-        updateCalculations();
-    });
+    // Employee select handler for Payslips
+    const selectEmployee = document.getElementById('selectEmployee');
+    if (selectEmployee) {
+        selectEmployee.addEventListener('change', handleEmployeeSelect);
+    }
 });
 
 // Section Navigation
@@ -36,13 +45,18 @@ function showSection(sectionId) {
     });
 
     // Show selected section
-    document.getElementById(sectionId).classList.add('active');
+    const targetSection = document.getElementById(sectionId);
+    if (targetSection) {
+        targetSection.classList.add('active');
+    }
 
     // Update nav links
     document.querySelectorAll('.nav-link').forEach(link => {
         link.classList.remove('active');
+        if (link.getAttribute('onclick')?.includes(sectionId)) {
+            link.classList.add('active');
+        }
     });
-    event.target.classList.add('active');
 }
 
 // Local Storage Functions
@@ -67,15 +81,15 @@ function calculatePayroll(basicSalary, housingAllowance, transportAllowance, oth
     // Gross Pay
     const grossPay = basic + housing + transport + other;
 
-    // Employee Deductions
-    const ssnitT1Employee = basic * 0.055; // 5.5%
-    const ssnitT2Employee = basic * 0.05;  // 5%
+    // Employee Deductions (Ghana Specific)
+    const ssnitT1Employee = basic * 0.055; // 5.5% (to Tier 1)
+    const ssnitT2Employee = basic * 0.05;  // 5% (to Tier 2)
     const nhisEmployee = basic * 0.025;    // 2.5%
 
-    // Taxable Income
+    // Taxable Income = Gross Pay - SSNIT Employee Contribution
     const taxableIncome = grossPay - (ssnitT1Employee + ssnitT2Employee);
 
-    // PAYE Calculation (Ghana Tax Brackets - Simplified)
+    // PAYE Calculation
     const paye = calculatePAYE(taxableIncome);
 
     // Total Deductions
@@ -91,68 +105,67 @@ function calculatePayroll(basicSalary, housingAllowance, transportAllowance, oth
     const totalEmployerCost = grossPay + ssnitT1Employer + ssnitT2Employer + nhisEmployer;
 
     return {
-        grossPay: grossPay,
-        ssnitT1Employee: ssnitT1Employee,
-        ssnitT2Employee: ssnitT2Employee,
-        nhisEmployee: nhisEmployee,
-        paye: paye,
-        totalDeductions: totalDeductions,
-        netPay: netPay,
-        ssnitT1Employer: ssnitT1Employer,
-        ssnitT2Employer: ssnitT2Employer,
-        nhisEmployer: nhisEmployer,
-        totalEmployerCost: totalEmployerCost
+        grossPay,
+        ssnitT1Employee,
+        ssnitT2Employee,
+        nhisEmployee,
+        paye,
+        totalDeductions,
+        netPay,
+        ssnitT1Employer,
+        ssnitT2Employer,
+        nhisEmployer,
+        totalEmployerCost
     };
 }
 
 function calculatePAYE(taxableIncome) {
-    // Ghana PAYE Tax Brackets (Annual - Simplified Example)
-    // These brackets should be updated to match current Ghana tax laws
-    const monthlyIncome = taxableIncome;
-    const annualIncome = monthlyIncome * 12;
-
+    // Current Ghana Graduated Tax Brackets (Monthly)
+    const income = taxableIncome;
     let tax = 0;
 
-    if (annualIncome <= 4380) {
-        // First GHS 4,380 - Tax Free
+    if (income <= 402) {
         tax = 0;
-    } else if (annualIncome <= 7380) {
-        // Next GHS 3,000 @ 5%
-        tax = (annualIncome - 4380) * 0.05;
-    } else if (annualIncome <= 10380) {
-        // Next GHS 3,000 @ 10%
-        tax = 150 + (annualIncome - 7380) * 0.10;
-    } else if (annualIncome <= 49380) {
-        // Next GHS 39,000 @ 17.5%
-        tax = 450 + (annualIncome - 10380) * 0.175;
-    } else if (annualIncome <= 240000) {
-        // Next GHS 190,620 @ 25%
-        tax = 7275 + (annualIncome - 49380) * 0.25;
+    } else if (income <= 512) {
+        tax = (income - 402) * 0.05;
+    } else if (income <= 642) {
+        tax = 5.5 + (income - 512) * 0.10;
+    } else if (income <= 3642) {
+        tax = 18.5 + (income - 642) * 0.175;
+    } else if (income <= 20000) {
+        tax = 543.5 + (income - 3642) * 0.25;
+    } else if (income <= 50000) {
+        tax = 4633 + (income - 20000) * 0.30;
     } else {
-        // Excess @ 30%
-        tax = 54930 + (annualIncome - 240000) * 0.30;
+        tax = 13633 + (income - 50000) * 0.35;
     }
 
-    // Convert annual tax to monthly
-    return tax / 12;
+    return tax;
 }
 
 // Live Calculation Update
 function updateCalculations() {
-    const basicSalary = document.getElementById('basicSalary').value;
-    const housingAllowance = document.getElementById('housingAllowance').value;
-    const transportAllowance = document.getElementById('transportAllowance').value;
-    const otherAllowances = document.getElementById('otherAllowances').value;
+    const basicSalary = document.getElementById('basicSalary')?.value || 0;
+    const housingAllowance = document.getElementById('housingAllowance')?.value || 0;
+    const transportAllowance = document.getElementById('transportAllowance')?.value || 0;
+    const otherAllowances = document.getElementById('otherAllowances')?.value || 0;
 
     const payroll = calculatePayroll(basicSalary, housingAllowance, transportAllowance, otherAllowances);
 
-    // Update display
-    document.getElementById('calcSsnitT1').textContent = formatCurrency(payroll.ssnitT1Employee);
-    document.getElementById('calcSsnitT2').textContent = formatCurrency(payroll.ssnitT2Employee);
-    document.getElementById('calcNhis').textContent = formatCurrency(payroll.nhisEmployee);
-    document.getElementById('calcPaye').textContent = formatCurrency(payroll.paye);
-    document.getElementById('calcGrossPay').textContent = formatCurrency(payroll.grossPay);
-    document.getElementById('calcNetPay').textContent = formatCurrency(payroll.netPay);
+    // Update display fields
+    const fields = {
+        'calcSsnitT1': payroll.ssnitT1Employee,
+        'calcSsnitT2': payroll.ssnitT2Employee,
+        'calcNhis': payroll.nhisEmployee,
+        'calcPaye': payroll.paye,
+        'calcGrossPay': payroll.grossPay,
+        'calcNetPay': payroll.netPay
+    };
+
+    for (const [id, value] of Object.entries(fields)) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = formatCurrency(value);
+    }
 }
 
 // Form Submit Handler
@@ -161,34 +174,21 @@ function handleFormSubmit(e) {
 
     const employeeId = document.getElementById('employeeId').value.trim();
     const fullName = document.getElementById('fullName').value.trim();
-    const position = document.getElementById('position').value.trim();
-    const ghanaCard = document.getElementById('ghanaCard').value.trim();
-    const bankAccount = document.getElementById('bankAccount').value.trim();
-    const tin = document.getElementById('tin').value.trim();
-
+    
     const basicSalary = parseFloat(document.getElementById('basicSalary').value) || 0;
     const housingAllowance = parseFloat(document.getElementById('housingAllowance').value) || 0;
     const transportAllowance = parseFloat(document.getElementById('transportAllowance').value) || 0;
     const otherAllowances = parseFloat(document.getElementById('otherAllowances').value) || 0;
 
-    // Calculate payroll
     const payroll = calculatePayroll(basicSalary, housingAllowance, transportAllowance, otherAllowances);
 
-    // Check if employee already exists
-    const existingIndex = employees.findIndex(emp => emp.employeeId === employeeId && currentEditId !== employeeId);
-
-    if (existingIndex !== -1) {
-        const confirm = window.confirm(`Employee with ID ${employeeId} already exists. Do you want to update this employee?`);
-        if (!confirm) return;
-    }
-
-    const employee = {
+    const employeeData = {
         employeeId,
         fullName,
-        position,
-        ghanaCard,
-        bankAccount,
-        tin,
+        position: document.getElementById('position').value.trim(),
+        ghanaCard: document.getElementById('ghanaCard').value.trim(),
+        bankAccount: document.getElementById('bankAccount').value.trim(),
+        tin: document.getElementById('tin').value.trim(),
         basicSalary,
         housingAllowance,
         transportAllowance,
@@ -196,46 +196,41 @@ function handleFormSubmit(e) {
         ...payroll
     };
 
-    if (currentEditId && currentEditId === employeeId) {
-        // Update existing
-        const index = employees.findIndex(emp => emp.employeeId === currentEditId);
-        employees[index] = employee;
-    } else if (existingIndex !== -1) {
-        // Update existing by ID
-        employees[existingIndex] = employee;
+    const existingIndex = employees.findIndex(emp => emp.employeeId === employeeId);
+
+    if (currentEditId || existingIndex !== -1) {
+        const indexToUpdate = currentEditId ? employees.findIndex(emp => emp.employeeId === currentEditId) : existingIndex;
+        employees[indexToUpdate] = employeeData;
+        alert("Employee updated successfully!");
     } else {
-        // Add new
-        employees.push(employee);
+        employees.push(employeeData);
+        alert("Employee added successfully!");
     }
 
     saveEmployees();
     updateDashboard();
     updateEmployeeTable();
     populateEmployeeSelect();
-
-    // Reset form and show success message
+    
     document.getElementById('employeeForm').reset();
     currentEditId = null;
-    updateCalculations();
-
-    alert(`Employee ${fullName} saved successfully!`);
     showSection('dashboard');
 }
 
-// Dashboard Update
+// Dashboard and UI Updates
 function updateDashboard() {
     const totalEmployees = employees.length;
-    const totalGrossPay = employees.reduce((sum, emp) => sum + emp.grossPay, 0);
-    const totalNetPay = employees.reduce((sum, emp) => sum + emp.netPay, 0);
+    const totalGross = employees.reduce((sum, emp) => sum + emp.grossPay, 0);
+    const totalNet = employees.reduce((sum, emp) => sum + emp.netPay, 0);
 
-    document.getElementById('totalEmployees').textContent = totalEmployees;
-    document.getElementById('totalGrossPay').textContent = formatCurrency(totalGrossPay);
-    document.getElementById('totalNetPay').textContent = formatCurrency(totalNetPay);
+    if(document.getElementById('totalEmployees')) document.getElementById('totalEmployees').textContent = totalEmployees;
+    if(document.getElementById('totalGrossPay')) document.getElementById('totalGrossPay').textContent = formatCurrency(totalGross);
+    if(document.getElementById('totalNetPay')) document.getElementById('totalNetPay').textContent = formatCurrency(totalNet);
 }
 
-// Employee Table Update
 function updateEmployeeTable() {
     const tbody = document.getElementById('employeeTableBody');
+    if (!tbody) return;
 
     if (employees.length === 0) {
         tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No employees added yet</td></tr>';
@@ -252,334 +247,148 @@ function updateEmployeeTable() {
             <td>${formatCurrency(emp.grossPay)}</td>
             <td>${formatCurrency(emp.netPay)}</td>
             <td>
-                <button class="btn btn-sm btn-primary" onclick="editEmployee('${emp.employeeId}')">
-                    <i class="fas fa-edit"></i> Edit
-                </button>
-                <button class="btn btn-sm btn-danger" onclick="deleteEmployee('${emp.employeeId}')">
-                    <i class="fas fa-trash"></i> Delete
-                </button>
+                <button class="btn btn-sm btn-primary me-1" onclick="editEmployee('${emp.employeeId}')">Edit</button>
+                <button class="btn btn-sm btn-danger" onclick="deleteEmployee('${emp.employeeId}')">Delete</button>
             </td>
         </tr>
     `).join('');
 }
 
-// Edit Employee
-function editEmployee(employeeId) {
-    const employee = employees.find(emp => emp.employeeId === employeeId);
-    if (!employee) return;
+function editEmployee(id) {
+    const emp = employees.find(e => e.employeeId === id);
+    if (!emp) return;
 
-    currentEditId = employeeId;
-
-    // Populate form
-    document.getElementById('employeeId').value = employee.employeeId;
-    document.getElementById('fullName').value = employee.fullName;
-    document.getElementById('position').value = employee.position || '';
-    document.getElementById('ghanaCard').value = employee.ghanaCard || '';
-    document.getElementById('bankAccount').value = employee.bankAccount || '';
-    document.getElementById('tin').value = employee.tin || '';
-    document.getElementById('basicSalary').value = employee.basicSalary;
-    document.getElementById('housingAllowance').value = employee.housingAllowance;
-    document.getElementById('transportAllowance').value = employee.transportAllowance;
-    document.getElementById('otherAllowances').value = employee.otherAllowances;
-
-    updateCalculations();
+    currentEditId = id;
     showSection('addEmployee');
 
-    // Scroll to top
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.getElementById('employeeId').value = emp.employeeId;
+    document.getElementById('fullName').value = emp.fullName;
+    document.getElementById('position').value = emp.position;
+    document.getElementById('ghanaCard').value = emp.ghanaCard;
+    document.getElementById('bankAccount').value = emp.bankAccount;
+    document.getElementById('tin').value = emp.tin;
+    document.getElementById('basicSalary').value = emp.basicSalary;
+    document.getElementById('housingAllowance').value = emp.housingAllowance;
+    document.getElementById('transportAllowance').value = emp.transportAllowance;
+    document.getElementById('otherAllowances').value = emp.otherAllowances;
+
+    updateCalculations();
 }
 
-// Delete Employee
-function deleteEmployee(employeeId) {
-    const employee = employees.find(emp => emp.employeeId === employeeId);
-    if (!employee) return;
-
-    const confirm = window.confirm(`Are you sure you want to delete ${employee.fullName}?`);
-    if (!confirm) return;
-
-    employees = employees.filter(emp => emp.employeeId !== employeeId);
-    saveEmployees();
-    updateDashboard();
-    updateEmployeeTable();
-    populateEmployeeSelect();
+function deleteEmployee(id) {
+    if (confirm("Are you sure you want to delete this employee?")) {
+        employees = employees.filter(emp => emp.employeeId !== id);
+        saveEmployees();
+        updateDashboard();
+        updateEmployeeTable();
+        populateEmployeeSelect();
+    }
 }
 
-// Populate Employee Select
 function populateEmployeeSelect() {
     const select = document.getElementById('selectEmployee');
+    if (!select) return;
 
-    if (employees.length === 0) {
-        select.innerHTML = '<option value="">-- No employees added yet --</option>';
-        return;
-    }
-
-    select.innerHTML = '<option value="">-- Select an employee --</option>' + 
-        employees.map(emp => `<option value="${emp.employeeId}">${emp.fullName} (${emp.employeeId})</option>`).join('');
+    select.innerHTML = '<option value="">-- Select Employee --</option>' + 
+        employees.map(emp => `<option value="${emp.employeeId}">${emp.fullName}</option>`).join('');
 }
 
-// Handle Employee Select
 function handleEmployeeSelect(e) {
     const employeeId = e.target.value;
-
+    const container = document.getElementById('payslipContainer');
+    
     if (!employeeId) {
-        document.getElementById('payslipContainer').style.display = 'none';
+        if(container) container.style.display = 'none';
         return;
     }
 
     const employee = employees.find(emp => emp.employeeId === employeeId);
-    if (!employee) return;
-
-    generatePayslip(employee);
-    document.getElementById('payslipContainer').style.display = 'block';
+    if (employee) {
+        generatePayslip(employee);
+        if(container) container.style.display = 'block';
+    }
 }
 
-// Generate Payslip
+// Generate Payslip HTML Content
 function generatePayslip(employee) {
     const now = new Date();
     const monthYear = now.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
-    const paymentDate = now.toLocaleDateString('en-GB');
-    const generatedDateTime = now.toLocaleString('en-GB');
-
+    
     const payslipHTML = `
-        <div class="payslip-header">
-            <div class="company-logo">
-                <svg width="80" height="80" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
-                            <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
-                        </linearGradient>
-                    </defs>
-                    <circle cx="50" cy="50" r="48" fill="url(#logoGradient)"/>
-                    <text x="50" y="70" font-family="Arial, sans-serif" font-size="60" font-weight="bold" 
-                          fill="white" text-anchor="middle">R</text>
-                </svg>
+        <div class="payslip-header text-center mb-4">
+            <h2>RESCONI</h2>
+            <p>Professional Payroll Solutions | Accra, Ghana</p>
+            <hr>
+            <h4>PAYSLIP: ${monthYear.toUpperCase()}</h4>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                <strong>Name:</strong> ${employee.fullName}<br>
+                <strong>ID:</strong> ${employee.employeeId}<br>
+                <strong>Position:</strong> ${employee.position}
             </div>
-            <div class="company-info">
-                <h1>RESCONI</h1>
-                <p class="tagline">Professional Payroll & HR Solutions</p>
-                <p class="address"><i class="fas fa-map-marker-alt"></i> Accra, Ghana</p>
-                <p class="address"><i class="fas fa-phone"></i> +233 XXX XXX XXX | <i class="fas fa-envelope"></i> info@resconi.com</p>
+            <div class="col-6 text-end">
+                <strong>TIN:</strong> ${employee.tin || 'N/A'}<br>
+                <strong>SSNIT:</strong> ${employee.ghanaCard || 'N/A'}<br>
+                <strong>Bank:</strong> ${employee.bankAccount || 'N/A'}
             </div>
         </div>
-
-        <div class="payslip-title">
-            <h2>PAYSLIP FOR ${monthYear.toUpperCase()}</h2>
-            <p class="payment-date">Payment Date: ${paymentDate}</p>
-        </div>
-
-        <div class="payslip-section">
-            <h3><i class="fas fa-user me-2"></i>Employee Information</h3>
-            <div class="info-grid">
-                <div class="info-item">
-                    <strong>Employee Name</strong>
-                    <span>${employee.fullName}</span>
-                </div>
-                <div class="info-item">
-                    <strong>Employee ID</strong>
-                    <span>${employee.employeeId}</span>
-                </div>
-                <div class="info-item">
-                    <strong>Position</strong>
-                    <span>${employee.position || 'N/A'}</span>
-                </div>
-                <div class="info-item">
-                    <strong>Ghana Card</strong>
-                    <span>${employee.ghanaCard || 'N/A'}</span>
-                </div>
-                <div class="info-item">
-                    <strong>Bank Account</strong>
-                    <span>${employee.bankAccount || 'N/A'}</span>
-                </div>
-                <div class="info-item">
-                    <strong>TIN</strong>
-                    <span>${employee.tin || 'N/A'}</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="payslip-section">
-            <h3><i class="fas fa-money-bill-wave me-2"></i>Earnings</h3>
-            <table class="earnings-table">
-                <tr>
-                    <td>Basic Salary</td>
-                    <td>${formatCurrency(employee.basicSalary)}</td>
-                </tr>
-                <tr>
-                    <td>Housing Allowance</td>
-                    <td>${formatCurrency(employee.housingAllowance)}</td>
-                </tr>
-                <tr>
-                    <td>Transport Allowance</td>
-                    <td>${formatCurrency(employee.transportAllowance)}</td>
-                </tr>
-                <tr>
-                    <td>Other Allowances</td>
-                    <td>${formatCurrency(employee.otherAllowances)}</td>
-                </tr>
-                <tr class="total-row">
-                    <td>GROSS PAY</td>
-                    <td>${formatCurrency(employee.grossPay)}</td>
-                </tr>
-            </table>
-        </div>
-
-        <div class="payslip-section">
-            <h3><i class="fas fa-minus-circle me-2"></i>Deductions</h3>
-            <table class="deductions-table">
-                <tr>
-                    <td>SSNIT Tier 1 (5.5%)</td>
-                    <td>${formatCurrency(employee.ssnitT1Employee)}</td>
-                </tr>
-                <tr>
-                    <td>SSNIT Tier 2 (5%)</td>
-                    <td>${formatCurrency(employee.ssnitT2Employee)}</td>
-                </tr>
-                <tr>
-                    <td>PAYE Income Tax</td>
-                    <td>${formatCurrency(employee.paye)}</td>
-                </tr>
-                <tr>
-                    <td>NHIS (2.5%)</td>
-                    <td>${formatCurrency(employee.nhisEmployee)}</td>
-                </tr>
-                <tr class="total-row">
-                    <td>TOTAL DEDUCTIONS</td>
-                    <td>${formatCurrency(employee.totalDeductions)}</td>
-                </tr>
-            </table>
-        </div>
-
-        <div class="net-pay-box">
-            <h3>NET PAY</h3>
-            <p class="amount">${formatCurrency(employee.netPay)}</p>
-        </div>
-
-        <div class="payslip-section employer-contributions">
-            <h3><i class="fas fa-building me-2"></i>Employer Contributions (For Records)</h3>
-            <table class="deductions-table">
-                <tr>
-                    <td>SSNIT Tier 1 Employer (13.5%)</td>
-                    <td>${formatCurrency(employee.ssnitT1Employer)}</td>
-                </tr>
-                <tr>
-                    <td>SSNIT Tier 2 Employer (5%)</td>
-                    <td>${formatCurrency(employee.ssnitT2Employer)}</td>
-                </tr>
-                <tr>
-                    <td>NHIS Employer (2.5%)</td>
-                    <td>${formatCurrency(employee.nhisEmployer)}</td>
-                </tr>
-                <tr class="total-row">
-                    <td>TOTAL EMPLOYER COST</td>
-                    <td>${formatCurrency(employee.totalEmployerCost)}</td>
-                </tr>
-            </table>
-        </div>
-
-        <div class="signature-section">
-            <div class="signature-grid">
-                <div class="signature-line">
-                    <div class="line"></div>
-                    <p>Employee Signature</p>
-                </div>
-                <div class="signature-line">
-                    <div class="line"></div>
-                    <p>Date</p>
-                </div>
-                <div class="signature-line">
-                    <div class="line"></div>
-                    <p>HR / Payroll Officer</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="payslip-footer">
-            <p><i class="fas fa-university me-2"></i><strong>Payment Method:</strong> Bank Transfer</p>
-            <p><i class="fas fa-info-circle me-2"></i>This is a computer-generated payslip and does not require a signature.</p>
-            <p class="generated-date">Generated on ${generatedDateTime}</p>
-        </div>
+        <table class="table mt-4">
+            <thead class="table-light">
+                <tr><th>Description</th><th class="text-end">Amount (GHS)</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Basic Salary</td><td class="text-end">${formatCurrency(employee.basicSalary)}</td></tr>
+                <tr><td>Allowances</td><td class="text-end">${formatCurrency(employee.housingAllowance + employee.transportAllowance + employee.otherAllowances)}</td></tr>
+                <tr class="fw-bold"><td>Gross Pay</td><td class="text-end">${formatCurrency(employee.grossPay)}</td></tr>
+                <tr><td>SSNIT (5.5%)</td><td class="text-end">-${formatCurrency(employee.ssnitT1Employee)}</td></tr>
+                <tr><td>PAYE Tax</td><td class="text-end">-${formatCurrency(employee.paye)}</td></tr>
+                <tr><td>NHIS (2.5%)</td><td class="text-end">-${formatCurrency(employee.nhisEmployee)}</td></tr>
+                <tr class="table-dark"><td>NET PAY</td><td class="text-end">${formatCurrency(employee.netPay)}</td></tr>
+            </tbody>
+        </table>
     `;
-
-    document.getElementById('payslipContent').innerHTML = payslipHTML;
+    
+    const content = document.getElementById('payslipContent');
+    if(content) content.innerHTML = payslipHTML;
 }
 
-// Print Payslip
-function printPayslip() {
-    const container = document.getElementById('payslipContainer');
+// PDF Export
+async function downloadPDF() {
+    const element = document.getElementById('payslipContent');
+    const { jsPDF } = window.jspdf;
+    
+    const btn = event.currentTarget;
+    btn.disabled = true;
+    btn.innerHTML = "Generating...";
 
-    if (container.style.display === 'none') {
-        alert('Please select an employee first.');
-        return;
+    try {
+        const canvas = await html2canvas(element, { scale: 2 });
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const imgProps = pdf.getImageProperties(imgData);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+        
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        pdf.save(`Payslip_${currentEditId || 'Employee'}.pdf`);
+    } catch (err) {
+        console.error(err);
+        alert("Failed to generate PDF.");
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = "Download PDF";
     }
+}
 
+function printPayslip() {
     window.print();
 }
 
-// Download PDF
-function downloadPDF() {
-    const container = document.getElementById('payslipContainer');
-
-    if (container.style.display === 'none') {
-        alert('Please select an employee first.');
-        return;
-    }
-
-    const employeeId = document.getElementById('selectEmployee').value;
-    const employee = employees.find(emp => emp.employeeId === employeeId);
-
-    if (!employee) return;
-
-    const element = document.getElementById('payslipContent');
-    const now = new Date();
-    const monthYear = now.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }).replace(' ', '_');
-    const filename = `Payslip_${employee.fullName.replace(/\s+/g, '_')}_${monthYear}.pdf`;
-
-    // Show loading message
-    const originalButton = event.target;
-    const originalText = originalButton.innerHTML;
-    originalButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Generating PDF...';
-    originalButton.disabled = true;
-
-    html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        logging: false
-    }).then(canvas => {
-        const imgData = canvas.toDataURL('image/png');
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF('p', 'mm', 'a4');
-
-        const imgWidth = 210; // A4 width in mm
-        const pageHeight = 297; // A4 height in mm
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        let heightLeft = imgHeight;
-        let position = 0;
-
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-
-        while (heightLeft >= 0) {
-            position = heightLeft - imgHeight;
-            pdf.addPage();
-            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-            heightLeft -= pageHeight;
-        }
-
-        pdf.save(filename);
-
-        // Restore button
-        originalButton.innerHTML = originalText;
-        originalButton.disabled = false;
-    }).catch(error => {
-        console.error('PDF generation error:', error);
-        alert('Error generating PDF. Please try again.');
-        originalButton.innerHTML = originalText;
-        originalButton.disabled = false;
-    });
-}
-
-// Utility Function - Format Currency
+// Utility Function
 function formatCurrency(amount) {
-    return 'GHS ' + parseFloat(amount).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+    return parseFloat(amount).toLocaleString('en-GH', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
 }
