@@ -12,61 +12,76 @@
 <body>
 
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top no-print">
-        <div class="container-fluid px-4">
+        <div class="container-fluid px-lg-4">
             <a class="navbar-brand d-flex align-items-center" href="#">
                 <div class="brand-logo me-2"><i class="fas fa-shield-halved text-primary"></i></div>
                 <span class="fw-bold text-dark">RESCONI <span class="text-primary">PAYROLL</span></span>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
+            
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link px-3 active" href="#" onclick="showSection('dashboard')"><i class="fas fa-th-large me-1"></i> Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link px-3" href="#" onclick="showSection('addEmployee')"><i class="fas fa-user-plus me-1"></i> Add Employee</a></li>
-                    <li class="nav-item"><a class="nav-link px-3" href="#" onclick="showSection('generatePayslip')"><i class="fas fa-print me-1"></i> Generate Payslip</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link px-3 active" href="#" onclick="showSection('dashboard')">
+                            <i class="fas fa-th-large me-1"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-3" href="#" onclick="showSection('addEmployee')">
+                            <i class="fas fa-user-plus me-1"></i> Add Employee
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-3" href="#" onclick="showSection('generatePayslip')">
+                            <i class="fas fa-print me-1"></i> Generate Payslip
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <div class="container-fluid py-4 px-md-5">
+    <div class="container-fluid py-4 px-3 px-md-5">
+        
         <div id="dashboard" class="section active">
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
                 <h2 class="h4 fw-bold mb-0 text-secondary">System Overview</h2>
                 <span class="badge bg-light text-dark border p-2"><i class="far fa-calendar me-1"></i> Fiscal Year 2026</span>
             </div>
-            <div class="row g-3 mb-5">
-                <div class="col-md-4">
-                    <div class="stat-card-pro">
+
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 mb-5">
+                <div class="col">
+                    <div class="stat-card-pro h-100">
                         <div class="label">Total Workforce</div>
-                        <div class="value" id="totalEmployees">0</div>
-                        <div class="trend text-primary"><i class="fas fa-users me-1"></i> Active Personnel</div>
+                        <div class="value fs-2" id="totalEmployees">0</div>
+                        <div class="trend text-primary small"><i class="fas fa-users me-1"></i> Active Personnel</div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="stat-card-pro">
+                <div class="col">
+                    <div class="stat-card-pro h-100">
                         <div class="label">Total Gross Liability</div>
-                        <div class="value" id="totalGrossPay">GHS 0.00</div>
-                        <div class="trend text-success"><i class="fas fa-chart-line me-1"></i> Monthly Expenditure</div>
+                        <div class="value fs-2" id="totalGrossPay">GHS 0.00</div>
+                        <div class="trend text-success small"><i class="fas fa-chart-line me-1"></i> Monthly Expenditure</div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="stat-card-pro">
+                <div class="col">
+                    <div class="stat-card-pro h-100">
                         <div class="label">Net Disbursement</div>
-                        <div class="value" id="totalNetPay">GHS 0.00</div>
-                        <div class="trend text-info"><i class="fas fa-wallet me-1"></i> Final Payout</div>
+                        <div class="value fs-2" id="totalNetPay">GHS 0.00</div>
+                        <div class="trend text-info small"><i class="fas fa-wallet me-1"></i> Final Payout</div>
                     </div>
                 </div>
             </div>
 
             <div class="card border-0 shadow-sm rounded-3">
-                <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                <div class="card-header bg-white py-3 border-bottom">
                     <h5 class="mb-0 fw-bold">Master Employee Registry</h5>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
+                        <table class="table table-hover align-middle mb-0" style="min-width: 800px;">
                             <thead class="bg-light">
                                 <tr>
                                     <th class="ps-4">STAFF ID</th>
@@ -84,28 +99,28 @@
             </div>
         </div>
 
-        <div id="addEmployee" class="section">
+        <div id="addEmployee" class="section" style="display:none;">
             <h2 class="h4 fw-bold mb-4">Personnel Onboarding</h2>
             <div class="row g-4">
-                <div class="col-lg-8">
+                <div class="col-12 col-lg-8">
                     <div class="card border-0 shadow-sm">
-                        <div class="card-body p-4">
+                        <div class="card-body p-3 p-md-4">
                             <form id="employeeForm">
                                 <h6 class="text-primary text-uppercase small fw-800 mb-4 tracking-wider">A. Personal Particulars</h6>
                                 <div class="row g-3 mb-4">
-                                    <div class="col-md-4">
+                                    <div class="col-12 col-md-4">
                                         <label class="form-label small fw-bold">Employee ID</label>
                                         <input type="text" class="form-control" id="employeeId" required>
                                     </div>
-                                    <div class="col-md-8">
+                                    <div class="col-12 col-md-8">
                                         <label class="form-label small fw-bold">Full Legal Name</label>
                                         <input type="text" class="form-control" id="fullName" required>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-12 col-md-6">
                                         <label class="form-label small fw-bold">Ghana Card (NIA)</label>
                                         <input type="text" class="form-control" id="ghanaCard">
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-12 col-md-6">
                                         <label class="form-label small fw-bold">Job Title</label>
                                         <input type="text" class="form-control" id="position">
                                     </div>
@@ -113,15 +128,15 @@
 
                                 <h6 class="text-primary text-uppercase small fw-800 mb-4 tracking-wider border-top pt-4">B. Financial & Bank Details</h6>
                                 <div class="row g-3 mb-4">
-                                    <div class="col-md-6">
+                                    <div class="col-12 col-md-6">
                                         <label class="form-label small fw-bold">Basic Monthly Salary (GHS)</label>
                                         <input type="number" class="form-control fw-bold" id="basicSalary" step="0.01" required oninput="updateCalculations()">
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-12 col-md-6">
                                         <label class="form-label small fw-bold">Bank Name</label>
                                         <input type="text" class="form-control" id="bankName" placeholder="e.g. GCB Bank">
                                     </div>
-                                    <div class="col-md-12">
+                                    <div class="col-12">
                                         <label class="form-label small fw-bold">Branch & Account Number</label>
                                         <input type="text" class="form-control" id="bankBranch" placeholder="e.g. High Street / 10182736455">
                                     </div>
@@ -130,7 +145,7 @@
                                 <div class="p-3 bg-light rounded border mb-4">
                                     <h6 class="small fw-bold mb-3">Add Allowances</h6>
                                     <div class="row g-2 align-items-end">
-                                        <div class="col-md-5">
+                                        <div class="col-12 col-md-5">
                                             <select id="allowanceType" class="form-select form-select-sm">
                                                 <option value="Housing Allowance">Housing Allowance</option>
                                                 <option value="Transport Allowance">Transport Allowance</option>
@@ -138,27 +153,27 @@
                                                 <option value="Risk Allowance">Risk Allowance</option>
                                             </select>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-7 col-md-4">
                                             <input type="number" id="allowanceAmount" class="form-control form-control-sm" placeholder="0.00">
                                         </div>
-                                        <div class="col-md-3">
+                                        <div class="col-5 col-md-3">
                                             <button type="button" class="btn btn-sm btn-primary w-100" onclick="addAllowanceRow()">Add</button>
                                         </div>
                                     </div>
                                     <div id="allowanceList" class="mt-3"></div>
                                 </div>
 
-                                <div class="mt-4">
-                                    <button type="submit" class="btn btn-primary px-4 py-2 me-2">Commit Record</button>
-                                    <button type="button" class="btn btn-light px-4 py-2" onclick="resetEmployeeForm()">Clear</button>
+                                <div class="mt-4 d-grid d-md-block">
+                                    <button type="submit" class="btn btn-primary px-4 py-2 me-md-2 mb-2 mb-md-0">Commit Record</button>
+                                    <button type="button" class="btn btn-light px-4 py-2 border" onclick="resetEmployeeForm()">Clear</button>
                                 </div>
                             </form>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-lg-4">
-                    <div class="card border-0 shadow-sm sticky-top" style="top: 100px;">
+                <div class="col-12 col-lg-4">
+                    <div class="card border-0 shadow-sm sticky-lg-top" style="top: 100px; z-index: 10;">
                         <div class="card-header bg-dark text-white py-3">Live Computation</div>
                         <div class="card-body p-4 bg-light">
                             <div class="d-flex justify-content-between mb-2"><span>SSNIT (5.5%)</span><span class="fw-bold" id="calcSsnit">GHS 0.00</span></div>
@@ -174,24 +189,27 @@
             </div>
         </div>
 
-        <div id="generatePayslip" class="section">
+        <div id="generatePayslip" class="section" style="display:none;">
             <div class="row mb-4 no-print">
-                <div class="col-md-6 mx-auto card p-4 shadow-sm border-0">
+                <div class="col-12 col-md-8 col-lg-6 mx-auto card p-3 p-md-4 shadow-sm border-0">
                     <label class="form-label fw-bold">Select Employee</label>
-                    <div class="d-flex gap-2">
+                    <div class="d-flex flex-column flex-sm-row gap-2">
                         <select class="form-select" id="selectEmployee" onchange="loadSelectedEmployee()">
                             <option value="">-- Search Registry --</option>
                         </select>
-                        <button class="btn btn-success px-4" onclick="window.print()"><i class="fas fa-print"></i></button>
+                        <button class="btn btn-success px-4" onclick="window.print()"><i class="fas fa-print me-1"></i> Print</button>
                     </div>
                 </div>
             </div>
             <div id="payslipContainer" style="display: none;">
-                <div id="payslipContent" class="ledger-output-wrapper"></div>
+                <div class="table-responsive">
+                    <div id="payslipContent" class="ledger-output-wrapper mx-auto" style="min-width: 320px;"></div>
+                </div>
             </div>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
